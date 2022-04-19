@@ -3,6 +3,16 @@ from PIL import Image
 import numpy as np
 
 
+class AsymPSFError(Exception):
+    pass
+
+
+def psf_correct(PSF: np.ndarray):
+    x, y = PSF.shape
+    if not ((x % 2) and (y % 2)):
+        raise AsymPSFError("PSF shape contains even components")
+
+
 def psf_moffat(dim, s, beta):
     x = np.arange(0, dim[0])
     y = np.arange(0, dim[1])
