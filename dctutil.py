@@ -74,3 +74,16 @@ def trunc_svd(X, k):
 
 def err(X, S):
     return norm(X - S) / norm(X)
+
+
+def gen_tikhonov_filters(S, alpha):
+    return S**2 / (S**2 + alpha ** 2)
+
+
+def gen_tsvd_filters(S, k):
+    x, y = S.shape
+    xm = np.arange(0, x)
+    ym = np.arange(0, y)
+    xx, yy = np.meshgrid(xm, ym)
+    filt = xx ** 2 + yy ** 2
+    return np.where(filt < k ** 2, 1, 0)

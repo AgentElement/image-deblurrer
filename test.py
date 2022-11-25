@@ -52,6 +52,7 @@ def main():
         deblurred = idctn(blur_dct / S_mask)
         tsvd_deblurred.append(deblurred)
         error = err(img, deblurred)
+        #  print(i, error)
         tsvd_errors.append(error)
 
     lowest_tsvd_error_index = np.argmin(tsvd_errors)
@@ -67,6 +68,7 @@ def main():
         deblurred = idctn(spectral * blur_dct / S_filt)
         tikhonov_deblurred.append(deblurred)
         error = err(img, deblurred)
+        print(alpha, error)
         tikhonov_errors.append(error)
 
     lowest_tikhonov_error_index = np.argmin(tikhonov_errors)

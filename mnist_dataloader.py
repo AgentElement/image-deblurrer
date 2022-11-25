@@ -33,8 +33,8 @@ class MNIST_blur(Dataset):
         z, x, y = img.shape
         img = np.reshape(img.numpy(), (x, y))
 
-        psf_factor = random.uniform(0.5, 2)
-        noise_factor = random.uniform(0, 0.05)
+        psf_factor = random.uniform(0.5, 1.5)
+        noise_factor = random.uniform(0.01, 0.05)
 
         P = psf_gauss(img.shape, psf_factor)
         blurred_image = noisy_blur(img, P, noise_factor)

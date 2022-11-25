@@ -1,0 +1,75 @@
+This program implements an image deblurrer. We feeds DCT'd images into a basic
+CNN to determine a spectral mask to regularize the image before applying a 
+basic inversion to deblur. We assume that we know (or can guess) the 
+point-source function.
+
+Definitions:
+    Let A be a blurring matrix
+    Let b = vec(B) be a vectorized blurry image
+    Let x = vec(X) be a vectorized true image
+
+    Let E = N~(0, 1) be a gaussian noise matrix (random noise)
+
+
+What this repo does:
+
+We are given some noisy, blurry image:
+
+    b = Ax + E
+
+Trivially, we can find x by,
+
+    x = inv(A) .* (b - E)
+
+But we cannot know E. This is the inverse problem.
+Therefore the best we can do for now is,
+
+    x = inv(A) .* b
+        = inv(A) .* (Ax + E)
+        = x + inv(A) .* E
+
+
+But, in most cases:
+    
+    norm(inv(A) .* E) >> norm(x)
+
+So the problem is enormously ill-conditioned, and the resulting matrix is 
+garbage, as no
+
+
+Recall that the singular value decomposition of A is:
+
+   A = U Σ V^T
+
+Where U, V are orthonormal matrices and
+Σ is diagonal and ordered such that Σ_{ii} < Σ_{jj} if i > j
+
+The most basic method to overcome the ill-conditioning is to truncate the 
+smallest terms. This removes the high-frequency components from Σ, 
+so the inverse doesn't produce garbage:
+
+    Σ_{k} : { Σ_{ii}, i < k
+            { 0, i > k
+
+
+Then inv(A_{k}) .* b looks not terrible. But we lose a fair bit of 
+information about the original image this way.
+
+
+Instead, a slightly better approach is to apply Tikhonov regularization, 
+which mutes the high-frequency components and amplifies the low-frequency 
+components,
+
+    Σ_t = Σ^2 / (Σ^2 + α^2)
+
+for some predetermined alpha, which is dependant on the image itself. This can 
+be (approximately) linearised. If so, both truncating and the Tikhonov methods
+can be viewed as just multiplying Σ by some large matrix.
+
+Instead of all of this, however, we can learn a 'good' multiplier for Σ by 
+feeding in a bunch of images to some black-box function. The easiest way to do 
+this is with a CNN. Then we can reconstruct A' and inverse; the resulting 
+image is substantially better deblurred.
+
+
+
